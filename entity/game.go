@@ -35,7 +35,7 @@ type GamesRepository interface {
 	Save(Game) error
 }
 
-type GamesService interface {
+type GamesUsecase interface {
 	Get(id string) (Game, error)
 	Create(name string, size uint, bombs uint) (Game, error)
 	Reveal(id string, row uint, col uint) (Game, error)

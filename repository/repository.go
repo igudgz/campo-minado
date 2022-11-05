@@ -1,4 +1,4 @@
-package gamesrepo
+package repository
 
 import (
 	"encoding/json"
