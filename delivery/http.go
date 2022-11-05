@@ -9,33 +9,33 @@ import (
 )
 
 type HTTPHandler struct {
-	gamesService entity.GamesService
+	gamesUsecase entity.GamesUsecase
 }
 
-func NewHTTPHandler(gamesService entity.GamesService) *HTTPHandler {
+func NewHTTPHandler(gamesUsecase entity.GamesUsecase) *HTTPHandler {
 	return &HTTPHandler{
-		gamesService: gamesService,
+		gamesUsecase: gamesUsecase,
 	}
 }
 
-func (hdl *HTTPHandler) Get(c echo.Context) {
+func (hdl *HTTPHandler) Get(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
 		c.String(http.StatusBadRequest, "missing id!")
 	}
 
-	game, err := hdl.gamesService.Get(id)
+	game, err := hdl.gamesUsecase.Get(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, errors.ResponseRequest{
+		return c.JSON(http.StatusInternalServerError, errors.ResponseRequest{
 			Message: err.Error(),
 		})
-		return
+
 	}
 
-	c.JSON(http.StatusOK, game)
+	return c.JSON(http.StatusOK, game)
 }
 
-func (hdl *HTTPHandler) Create(c echo.Context) {
+func (hdl *HTTPHandler) Create(c echo.Context) error {
 	type bodyCreate struct {
 		Name  string
 		Size  uint
@@ -45,20 +45,19 @@ func (hdl *HTTPHandler) Create(c echo.Context) {
 	body := bodyCreate{}
 	err := c.Bind(&body)
 	if err != nil {
-		c.String(http.StatusBadRequest, "bad request")
-		return
+		return c.String(http.StatusBadRequest, "bad request")
+
 	}
 
-	game, err := hdl.gamesService.Create(body.Name, body.Size, body.Bombs)
+	game, err := hdl.gamesUsecase.Create(body.Name, body.Size, body.Bombs)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, errors.ResponseRequest{Message: err.Error()})
-		return
+		return c.JSON(http.StatusInternalServerError, errors.ResponseRequest{Message: err.Error()})
 	}
 
-	c.JSON(http.StatusOK, game)
+	return c.JSON(http.StatusOK, game)
 }
 
-func (hdl *HTTPHandler) RevealCell(c echo.Context) {
+func (hdl *HTTPHandler) RevealCell(c echo.Context) error {
 	type bodyRevealCell struct {
 		Row uint
 		Col uint
@@ -67,15 +66,15 @@ func (hdl *HTTPHandler) RevealCell(c echo.Context) {
 	body := bodyRevealCell{}
 	err := c.Bind(&body)
 	if err != nil {
-		c.String(http.StatusBadRequest, "bad request")
-		return
+		return c.String(http.StatusBadRequest, "bad request")
+
 	}
 
-	game, err := hdl.gamesService.Reveal(c.Param("id"), body.Row, body.Col)
+	game, err := hdl.gamesUsecase.Reveal(c.Param("id"), body.Row, body.Col)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, errors.ResponseRequest{Message: err.Error()})
-		return
+		return c.JSON(http.StatusInternalServerError, errors.ResponseRequest{Message: err.Error()})
+
 	}
 
-	c.JSON(http.StatusOK, game)
+	return c.JSON(http.StatusOK, game)
 }
