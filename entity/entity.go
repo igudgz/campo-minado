@@ -14,3 +14,14 @@ type BoardSettings struct {
 }
 
 type Board [][]string
+
+type GamesRepository interface {
+	Get(id string) (Game, error)
+	Save(Game) error
+}
+
+type GamesService interface {
+	Get(id string) (Game, error)
+	Create(name string, size uint, bombs uint) (Game, error)
+	Reveal(id string, row uint, col uint) (Game, error)
+}
